@@ -3,7 +3,7 @@ import React, { useState, useRef, useEffect } from "react";
 import { Check, Reset, Pause } from "../components/Icons";
 
 // From https://davidwalsh.name/caret-end
-function moveCursorToEnd(el) {
+function moveCursorToEnd(el: any) {
   if (typeof el.selectionStart == "number") {
     el.selectionStart = el.selectionEnd = el.value.length;
   } else if (typeof el.createTextRange != "undefined") {
@@ -25,7 +25,7 @@ function prettyPrintTime(time: number): string {
   return minutes + seconds;
 }
 
-function Prompt({ promptText, setPromptText, inputRef }) {
+function Prompt({ promptText, setPromptText, inputRef }: any) {
   return (
     <input
       className="text-6xl font-bold text-white border-b-8 border-black m-4 bg-transparent text-center"
@@ -38,7 +38,7 @@ function Prompt({ promptText, setPromptText, inputRef }) {
 }
 
 // Timer effect from https://www.code-boost.com/video/how-to-build-a-react-stopwatch-timer/
-function Time({ time, setTime, paused, setPaused }) {
+function Time({ time, setTime, paused, setPaused }: any) {
   return (
     <div className="flex flex-row text-5xl text-white items-center">
       <span>{prettyPrintTime(time)}</span>
@@ -65,7 +65,7 @@ function Time({ time, setTime, paused, setPaused }) {
   );
 }
 
-function Button({ children, onClick }) {
+function Button({ children, onClick }: any) {
   return (
     <button
       onClick={onClick}
@@ -82,7 +82,13 @@ interface Done {
   duration: number;
 }
 
-function Dones({ dones, hideDonesAndShowPrompt }: { dones: Array<Done> }) {
+function Dones({
+  dones,
+  hideDonesAndShowPrompt,
+}: {
+  dones: Array<Done>;
+  hideDonesAndShowPrompt: any;
+}) {
   return (
     <div className="fixed z-10 inset-0 overflow-y-auto w-full h-full flex items-center justify-center bg-white bg-opacity-50">
       <div className="rounded-2xl bg-white p-8 shadow m-10 w-2/3">
@@ -116,17 +122,17 @@ export default function Home() {
   const [time, setTime] = useState(0);
   const [showDones, setShowDones] = useState(false);
   const [promptText, setPromptText] = useState("thinking of what to do");
-  const [dones, setDones] = useState([]);
+  const [dones, setDones] = useState<Array<Done>>([]);
 
-  const inputRef = useRef(null);
+  const inputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
-    inputRef.current.focus();
+    inputRef?.current?.focus();
     moveCursorToEnd(inputRef.current);
   }, [inputRef]);
 
   useEffect(() => {
-    let interval = null;
+    let interval: any = null;
 
     if (!paused) {
       interval = setInterval(() => {
@@ -157,7 +163,7 @@ export default function Home() {
     setPromptText("");
     setPaused(false);
     setShowDones(false);
-    inputRef.current.focus();
+    inputRef?.current?.focus();
   };
 
   return (
