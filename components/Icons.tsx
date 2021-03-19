@@ -1,4 +1,4 @@
-export const Reset = ({ width, height }) => {
+export const Reset = ({ width, height }: any) => {
   return (
     <svg
       width={width}
@@ -19,7 +19,7 @@ export const Reset = ({ width, height }) => {
   );
 };
 
-export const Pause = ({ width, height }) => {
+export const Pause = ({ width, height }: any) => {
   return (
     <svg
       width={width}
@@ -33,7 +33,7 @@ export const Pause = ({ width, height }) => {
     </svg>
   );
 };
-export const Smile = ({ fill, width, height }) => {
+export const Smile = ({ fill, width, height }: any) => {
   return (
     <svg height={height} width={width} fill={fill} viewBox="0 0 24     24">
       <path d="M0 0h24v24H0z" fill="none" />
@@ -42,7 +42,7 @@ export const Smile = ({ fill, width, height }) => {
   );
 };
 
-export const Check = ({ width, height }) => {
+export const Check = ({ width, height }: any) => {
   return (
     <svg
       width={width}
