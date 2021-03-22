@@ -28,39 +28,43 @@ function prettyPrintTime(time: number): string {
 function Prompt({ promptText, setPromptText, inputRef }: any) {
   return (
     <input
-      className="text-6xl font-bold text-white border-b-8 border-black m-4 bg-transparent text-center"
+      className="w-11/12 text-3xl md:text-6xl font-bold text-white border-b-4 md:border-b-8 border-black bg-transparent text-center"
       spellCheck={false}
       ref={inputRef}
-      onChange={(e) => setPromptText(e.target.value)}
+      contentEditable={true}
       value={promptText}
+      onInput={(e) => setPromptText((e.target as HTMLInputElement).value)}
     />
   );
 }
 
-// Timer effect from https://www.code-boost.com/video/how-to-build-a-react-stopwatch-timer/
-function Time({ time, setTime, paused, setPaused }: any) {
+function Time({ time, resetTimer, paused, setPaused }: any) {
   return (
-    <div className="flex flex-row text-5xl text-white items-center">
-      <span>{prettyPrintTime(time)}</span>
-      <button
-        className="hover:bg-white hover:text-blue rounded-lg my-2 ml-2"
-        onClick={() => {
-          setPaused(false);
-          setTime(0);
-        }}
-      >
-        <Reset width="4rem" height="4rem" />
-      </button>
-      <button
-        className={`hover:bg-white hover:text-blue rounded-lg my-2 ${
-          paused && "bg-white text-blue"
-        }`}
-        onClick={() => {
-          setPaused(!paused);
-        }}
-      >
-        <Pause width="4rem" height="4rem" />
-      </button>
+    <div className="flex flex-col md:flex-row text-5xl text-white items-center justify-center">
+      <div className="flex flex-row justify-center items-center text-center">
+        {prettyPrintTime(time)}
+      </div>
+      <div className="flex flex-row">
+        <button
+          className="hover:bg-white hover:text-blue rounded-lg my-2 ml-2"
+          onClick={() => {
+            setPaused(false);
+            resetTimer();
+          }}
+        >
+          <Reset width="4rem" height="4rem" />
+        </button>
+        <button
+          className={`hover:bg-white hover:text-blue rounded-lg my-2 ${
+            paused && "bg-white text-blue"
+          }`}
+          onClick={() => {
+            setPaused(!paused);
+          }}
+        >
+          <Pause width="4rem" height="4rem" />
+        </button>
+      </div>
     </div>
   );
 }
@@ -91,21 +95,25 @@ function Dones({
 }) {
   return (
     <div className="fixed z-10 inset-0 overflow-y-auto w-full h-full flex items-center justify-center bg-white bg-opacity-50">
-      <div className="rounded-2xl bg-white p-8 shadow m-10 w-2/3">
+      <div className="rounded-2xl bg-white px-8 pt-8 md:p-8 shadow w-11/12 h-4/6 md:h-auto">
         <div className="flex justify-between">
-          <h2 className="text-5xl font-bold pb-4">Done</h2>
-          <h2 className="text-5xl font-bold pb-4">{`${dones.length} things`}</h2>
+          <h2 className="text-3xl md:text-5xl font-bold pb-4">Done</h2>
+          <h2 className="text-3xl md:text-5xl font-bold pb-4">{`${dones.length} things`}</h2>
         </div>
-        <ul>
+        <ul className="flex flex-col overflow-y-scroll md:h-auto h-4/6">
           {dones.map((d) => (
             <li
               key={d.id}
-              className="text-2xl flex flex-row p-2 even:bg-gray-100"
+              className="md:text-2xl flex flex-col md:flex-row p-2 even:bg-gray-100"
             >
-              <Check width="2rem" height="2rem" />
-              <div className="pl-4">{d.text}</div>
+              <div className="flex flex-row">
+                <Check width="32px" height="32px" />
+                <div className="pl-4">{d.text}</div>
+              </div>
               <div className="flex-1" />
-              <div className="pl-4">{prettyPrintTime(d.duration)}</div>
+              <div className="md:pl-4 text-gray-500">
+                {prettyPrintTime(d.duration)}
+              </div>
             </li>
           ))}
         </ul>
@@ -117,12 +125,50 @@ function Dones({
   );
 }
 
+function useTimer() {
+  const [time, setTime] = useState<number>(0);
+  const [startTime, setStartTime] = useState<number | null>(null);
+  const [paused, setPaused] = useState<boolean>(false);
+  const [prePauseTime, setPrePauseTime] = useState<number>(0);
+
+  const resetTimer = () => {
+    setStartTime(null);
+    setPrePauseTime(0);
+    setTime(0);
+  };
+
+  useEffect(() => {
+    let interval: any = null;
+
+    if (!paused) {
+      interval = setInterval(() => {
+        if (startTime == null) {
+          setStartTime(Date.now());
+          setTime(prePauseTime);
+        } else {
+          setTime(Date.now() - startTime + prePauseTime);
+        }
+      }, 100);
+    } else if (paused) {
+      setPrePauseTime(time);
+      setStartTime(null);
+      clearInterval(interval);
+    }
+
+    return () => clearInterval(interval);
+  }, [paused, startTime]);
+
+  return { time, resetTimer, paused, setPaused };
+}
+
 export default function Home() {
-  const [paused, setPaused] = useState(false);
-  const [time, setTime] = useState(0);
-  const [showDones, setShowDones] = useState(false);
-  const [promptText, setPromptText] = useState("thinking of what to do");
+  const [showDones, setShowDones] = useState<boolean>(false);
+  const [promptText, setPromptText] = useState<string>(
+    "thinking of what to do"
+  );
   const [dones, setDones] = useState<Array<Done>>([]);
+
+  const { time, resetTimer, paused, setPaused } = useTimer();
 
   const inputRef = useRef<HTMLInputElement>(null);
 
@@ -131,22 +177,8 @@ export default function Home() {
     moveCursorToEnd(inputRef.current);
   }, [inputRef]);
 
-  useEffect(() => {
-    let interval: any = null;
-
-    if (!paused) {
-      interval = setInterval(() => {
-        setTime((prevTime) => prevTime + 10);
-      }, 10);
-    } else if (paused) {
-      clearInterval(interval);
-    }
-
-    return () => clearInterval(interval);
-  }, [paused]);
-
   const clickDone = () => {
-    setTime(0);
+    resetTimer();
     setPaused(true);
     const newDones = [
       {
@@ -193,7 +225,7 @@ export default function Home() {
         <p className="text-4xl italic text-white p-4">for</p>
         <Time
           time={time}
-          setTime={setTime}
+          resetTimer={resetTimer}
           paused={paused}
           setPaused={setPaused}
         />
@@ -201,8 +233,6 @@ export default function Home() {
           <Button onClick={clickDone}>Done</Button>
         </div>
       </main>
-
-      <footer className="flex items-center justify-center w-full h-8"></footer>
     </div>
   );
 }
