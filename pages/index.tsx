@@ -104,15 +104,15 @@ function Dones({
           {dones.map((d) => (
             <li
               key={d.id}
-              className="md:text-2xl flex flex-col md:flex-row p-2 even:bg-gray-100"
+              className="text-xl md:text-2xl flex flex-row p-2 even:bg-gray-100 items-center"
             >
-              <div className="flex flex-row">
-                <Check width="32px" height="32px" />
-                <div className="pl-4">{d.text}</div>
-              </div>
-              <div className="flex-1" />
-              <div className="md:pl-4 text-gray-500">
-                {prettyPrintTime(d.duration)}
+              <Check width="32px" height="32px" />
+              <div className="pl-8" />
+              <div className="flex flex-col md:flex-1 md:flex-row">
+                <div className="md:flex-1">{d.text}</div>
+                <div className="md:pl-4 text-gray-500">
+                  {prettyPrintTime(d.duration)}
+                </div>
               </div>
             </li>
           ))}
