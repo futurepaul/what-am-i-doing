@@ -14,15 +14,31 @@ function moveCursorToEnd(el: any) {
   }
 }
 
+const millisInAMinute = 60000;
+const millisInAnHour = millisInAMinute * 60;
+const millisInADay = millisInAnHour * 24;
+
+function calculateDays(time: number) {
+  return Math.floor(time / millisInADay);
+}
+
+function calculateHours(time: number) {
+  return Math.floor((time / millisInAnHour) % 24);
+}
+
 function calculateMinutes(time: number) {
-  return Math.floor((time / 60000) % 60);
+  return Math.floor((time / millisInAMinute) % 60);
 }
 
 function prettyPrintTime(time: number): string {
-  let minutes =
-    calculateMinutes(time) > 0 ? `${calculateMinutes(time)} minutes and ` : "";
+  let d = calculateDays(time);
+  let h = calculateHours(time);
+  let m = calculateMinutes(time);
+  let days = d > 0 ? `${d} days ` : "";
+  let hours = h > 0 ? `${h} hours ` : "";
+  let minutes = m > 0 ? `${m} minutes and ` : "";
   let seconds = ` ${Math.floor((time / 1000) % 60)} seconds`;
-  return minutes + seconds;
+  return days + hours + minutes + seconds;
 }
 
 function Prompt({ promptText, setPromptText, inputRef }: any) {
